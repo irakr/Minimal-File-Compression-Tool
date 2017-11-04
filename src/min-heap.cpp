@@ -8,9 +8,14 @@ static void swap(T *x, T *y) {
 	*y = temp;
 }
 
+int MinHeap :: m_defaultCapacity = 100;
+
 // Constructs a heap from the given array 'arr[n]'
 MinHeap :: MinHeap(int *arr, int n) {
-	*this = MinHeap();
+	m_capacity = m_defaultCapacity;
+	m_arr = new int[m_defaultCapacity];
+	m_size = 0;
+	
 	int i;
 	// Copy array first
 	for(i = 0; i < n; i++)
@@ -67,6 +72,7 @@ int MinHeap :: deleteKey(int i) {
 	
 	decreaseKey(i, NEG_INF);
 	extractMin();
+	return 0;
 }
 	
 // Decrease the value of the key at node 'i' by the value 'newVal'

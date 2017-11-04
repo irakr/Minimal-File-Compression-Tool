@@ -11,6 +11,7 @@
 class MinHeap {
 
 protected:
+	static int m_defaultCapacity; // Default capacity =100
 	
 	int *m_arr; 		// Array containing heap elements/keys
 	int m_capacity; 	// Max size of heap
