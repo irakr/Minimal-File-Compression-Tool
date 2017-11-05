@@ -47,7 +47,12 @@ void CompressionEngine :: compress(const std::string file) {
 	// Open file named 'file'
 	// Pass the handle to specific encode() function
 	// encode() should return back the compressed file handle
-	std::fstream inputf(file);
+	std::fstream inputf;
+	inputf.open(file, std::fstream::in);
+	if(!inputf.is_open()) {
+		std::cerr << "[Error] The file \"" << file << "\" does not exist." << std::endl;
+		return;
+	}
 	std::fstream& compressedf = m_Compressor->encoder().encode(inputf);
 	inputf.close();
 	compressedf.close();
@@ -65,7 +70,11 @@ void CompressionEngine :: decompress(const std::string file) {
 	// Open file named 'file'
 	// Pass the handle to specific decode() function
 	// decode() should return back the decompressed file handle
-	std::fstream inputf(file);
+	std::fstream inputf(file, std::fstream::in);
+	if(!inputf.is_open()) {
+		std::cerr << "[Error] The file \"" << file << "\" does not exist." << std::endl;
+		return;
+	}
 	std::fstream& decompressedf = m_Compressor->decoder().decode(inputf);
 	inputf.close();
 	decompressedf.close();
