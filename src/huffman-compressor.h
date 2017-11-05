@@ -11,7 +11,8 @@
 // A Compressor implementation for Huffman coding algorithm
 class HuffmanCompressor : public Compressor {
 public:
-	HuffmanCompressor() {
+	HuffmanCompressor()	{
+		m_name = "Huffman-Coding";
 		m_encoder = new HuffmanEncoder();
 		m_decoder = new HuffmanDecoder();
 	}

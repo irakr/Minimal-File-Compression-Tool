@@ -5,7 +5,7 @@
 #ifndef COMPR_ENGINE_H_
 #define COMPR_ENGINE_H_
 
-#include "huffman-encoder.h"
+#include "huffman-compressor.h"
 
 class CompressionEngine {
 public:
@@ -19,6 +19,9 @@ public:
 	
 	// Set the provided compression algorithm
 	void setCompressor(const std::string&);
+	
+	// Return the name of the registered compression algorithm
+	std::string getCompressorName() const;
 	
 	// Compress the file 'file'
 	void compress(const std::string);

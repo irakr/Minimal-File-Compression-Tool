@@ -1,0 +1,3 @@
+TODO list:
+
+1. Replace simple error message displaying codes with exception generation.

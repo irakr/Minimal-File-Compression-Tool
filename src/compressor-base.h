@@ -15,11 +15,15 @@ class Decoder;
  */
 class Compressor {
 protected:
+	std::string m_name; // Registered name of the compression algorithm
+	
 	Encoder *m_encoder;
 	Decoder *m_decoder;
 public:
-	Encoder& Encoder() { return *m_encoder; }
-	Decoder& Decoder() { return *m_decoder; }
+	std::string name() const { return m_name; }
+	
+	Encoder& encoder() { return *m_encoder; }
+	Decoder& decoder() { return *m_decoder; }
 };
 
 /*
