@@ -3,7 +3,7 @@ include src/Sources.mk
 OBJECTS = $(SOURCES:.cpp=.o)
 
 #CXX = g++
-CXXFLAGS = -Wall -g
+CXXFLAGS = -Wall -g -std=c++14
 CPPFLAGS = 
 DEFINES = 
 INCLUDE_DIRS = -Isrc/

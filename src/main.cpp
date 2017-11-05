@@ -12,7 +12,7 @@ using namespace std;
 // Main entry function
 int main(int argc, char **argv) {
 	
-	cout << "Still under construction" << endl;
+	cout << " --- Still under construction ---" << endl;
 	
 	CompressionEngine engine(argc, (const char**)(argv+1));
 	engine.compressAll();

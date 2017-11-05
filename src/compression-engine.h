@@ -9,6 +9,7 @@
 
 class CompressionEngine {
 public:
+	// Get file names from command line arguments
 	CompressionEngine(int, const char**);
 	
 	~CompressionEngine() {
@@ -16,22 +17,27 @@ public:
 			m_fileNames.clear();
 	}
 	
-	// Set the required compression algorithm
-	void setCompressor(Compressor &compressor) {
-		m_Compressor = &compressor;
-	}
+	// Set the provided compression algorithm
+	void setCompressor(const std::string&);
 	
 	// Compress the file 'file'
-	void compress(std::string);
+	void compress(const std::string);
 	
 	// Compress all files in m_fileNames
 	void compressAll();
 	
+	// Decompress the compressed file 'file'
+	void decompress(const std::string);
+	
+	// Decompress all files in m_fileNames
+	void decompressAll();
+	
 private:
 	std::vector<std::string> m_fileNames;
-	// TODO... Also keep file handles
 	
-	// Registered compression algorithms
+	// TODO... (Maybe)Keep file handles too
+	
+	// Registered compression algorithm
 	Compressor *m_Compressor;
 };
 
