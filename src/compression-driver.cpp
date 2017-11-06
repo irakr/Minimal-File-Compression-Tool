@@ -1,8 +1,14 @@
-#include "compression-engine.h"
+#include <exception>
+#include "compression-driver.h"
+#include "logger.h"
 
-CompressionEngine :: CompressionEngine(int fCount, const char **fileNames)
+CompressionDriver :: CompressionDriver(int fCount, const char **fileNames)
 					: m_Compressor(0)
 {
+	Log(this, "Started...");
+	if(fCount <= 1)
+		throw std::invalid_argument("No input file(s) provided.");
+	
 	for(int i = 0; i < fCount - 1; i++) {
 		std::string *s = new std::string(fileNames[i]);
 		m_fileNames.push_back(*s);
@@ -15,8 +21,9 @@ CompressionEngine :: CompressionEngine(int fCount, const char **fileNames)
 }
 
 // Set the provided compression algorithm
-void CompressionEngine :: setCompressor(const std::string& algo) {
+void CompressionDriver :: setCompressor(const std::string& algo) {
 	// TODO... Find valid compressor and register it
+	Log(this, "Started...");
 	
 	// --- This code is just for initial testing purpose ---
 	// --- Later we will add separate module for maintaining registered algorithms ---
@@ -27,7 +34,8 @@ void CompressionEngine :: setCompressor(const std::string& algo) {
 }
 
 // Return the name of the registered compression algorithm
-std::string CompressionEngine :: getCompressorName() const {
+std::string CompressionDriver :: getCompressorName() const {
+	Log(this, "Started...");
 	if(!m_Compressor) {
 		std::cerr << "[Fatal Error] Unable to get compression name." << std::endl;
 		return "";
@@ -37,7 +45,8 @@ std::string CompressionEngine :: getCompressorName() const {
 }
 
 // Compress the file 'file'
-void CompressionEngine :: compress(const std::string file) {
+void CompressionDriver :: compress(const std::string file) {
+	Log(this, "Started...");
 	if(!m_Compressor) {
 		std::cerr << "[Fatal Error] No compression algorithm registered." << std::endl;
 		return; // FIXME... Throw an exception from here
@@ -48,7 +57,7 @@ void CompressionEngine :: compress(const std::string file) {
 	// Pass the handle to specific encode() function
 	// encode() should return back the compressed file handle
 	std::fstream inputf;
-	inputf.open(file, std::fstream::in);
+	inputf.open(file, std::fstream::in | std::fstream::binary);
 	if(!inputf.is_open()) {
 		std::cerr << "[Error] The file \"" << file << "\" does not exist." << std::endl;
 		return;
@@ -59,18 +68,19 @@ void CompressionEngine :: compress(const std::string file) {
 }
 
 // Compress all files in m_fileNames
-void CompressionEngine :: compressAll() {
+void CompressionDriver :: compressAll() {
+	Log(this, "Started...");
 	for(std::vector<std::string>::iterator i = m_fileNames.begin(); i != m_fileNames.end(); i++)
 		compress(*i);
 }
 
 // Decompress the compressed file 'file'
-void CompressionEngine :: decompress(const std::string file) {
+void CompressionDriver :: decompress(const std::string file) {
 	// TODO ... 
 	// Open file named 'file'
 	// Pass the handle to specific decode() function
 	// decode() should return back the decompressed file handle
-	std::fstream inputf(file, std::fstream::in);
+	std::fstream inputf(file, std::fstream::in | std::fstream::binary);
 	if(!inputf.is_open()) {
 		std::cerr << "[Error] The file \"" << file << "\" does not exist." << std::endl;
 		return;
@@ -81,7 +91,7 @@ void CompressionEngine :: decompress(const std::string file) {
 }
 	
 // Decompress all files in m_fileNames
-void CompressionEngine :: decompressAll() {
+void CompressionDriver :: decompressAll() {
 	for(std::vector<std::string>::iterator i = m_fileNames.begin(); i != m_fileNames.end(); i++)
 		decompress(*i);
 }

@@ -1,0 +1,7 @@
+Overall things to be done:-
+
+1. Implement HuffmanEncoder::encode() and HuffmanDecoder::decode() methods.
+
+2. Decide the appropriate datatype for 'CodewordTable'. Whether to use std::string or std::bitset ???
+
+3. Add error logging feature in logger.h.

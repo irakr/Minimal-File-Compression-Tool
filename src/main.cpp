@@ -5,7 +5,9 @@
  */
 
 #include <iostream>
-#include "compression-engine.h"
+#include <exception>
+#include "compression-driver.h"
+#include "logger.h"
 
 using namespace std;
 
@@ -13,11 +15,18 @@ using namespace std;
 int main(int argc, char **argv) {
 	
 	cout << " --- Still under construction ---" << endl;
+	Log_static("Started...");
 	
-	CompressionEngine engine(argc, (const char**)(argv+1));
-	engine.setCompressor("Huffman-Coding");
-	cout << "Selected algorithm: " << engine.getCompressorName() << endl;
-	engine.compressAll();
+	try {
+		CompressionDriver driver(argc, (const char**)(argv+1));
+	
+		driver.setCompressor("Huffman-Coding");
+		cout << "Selected algorithm: " << driver.getCompressorName() << endl;
+		driver.compressAll();
+	}
+	catch(exception &e) {
+		Log_static(e.what());
+	}
 	
 	return 0;
 }

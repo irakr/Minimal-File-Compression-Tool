@@ -1,3 +1,7 @@
 TODO list:
 
 1. Replace simple error message displaying codes with exception generation.
+
+2. Better to change the function name encode()/decode() to something like run() or something.
+
+3. "HuffmanEncoder::encode()": If the previously compressed file is same then don't clear the internal tables. Re-use them.

@@ -7,10 +7,13 @@
 #include "compressor-base.h"
 #include "min-heap.h"
 
-// A single
+// Huffman decoder implementation
 class HuffmanDecoder : public Decoder {
 public:
 	HuffmanDecoder() {}
+	
+	// Decompresses the file specified by the fstream and returns
+	// another fstream that is a handle to the decompressed file
 	std::fstream& decode(std::fstream&);
 };
 

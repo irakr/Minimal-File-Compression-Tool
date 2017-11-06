@@ -1,18 +1,18 @@
+#ifndef COMPR_DRIVER_H_
+#define COMPR_DRIVER_H_
+
 #include <iostream>
 #include <fstream>
 #include <vector>
-
-#ifndef COMPR_ENGINE_H_
-#define COMPR_ENGINE_H_
-
+//#include "base-class.h"
 #include "huffman-compressor.h"
 
-class CompressionEngine {
+class CompressionDriver : public ClassInfo {
 public:
 	// Get file names from command line arguments
-	CompressionEngine(int, const char**);
+	CompressionDriver(int, const char**);
 	
-	~CompressionEngine() {
+	~CompressionDriver() {
 		if(!m_fileNames.empty())
 			m_fileNames.clear();
 	}

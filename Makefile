@@ -4,9 +4,9 @@ OBJECTS = $(SOURCES:.cpp=.o)
 
 #CXX = g++
 CXXFLAGS = -Wall -g -std=c++14
-CPPFLAGS = 
-DEFINES = 
+DEFINES = -DDEBUG_ON
 INCLUDE_DIRS = -Isrc/
+CPPFLAGS = $(DEFINES) $(INCLUDE_DIRS)
 LDFLAGS = 
 OUTPUT = bin/test.out
 
