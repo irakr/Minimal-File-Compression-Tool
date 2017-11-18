@@ -20,6 +20,7 @@
 
 #define Log(obj, mesg)
 #define Log_static(mesg)
+#define Log_plain(mesg)
 
 #else
 
@@ -27,11 +28,16 @@
 #define Log(obj, mesg)					\
 	do {								\
 		logger(*obj, __func__, mesg);	\
-	} while(false);						\
+	} while (false);
 
 #define Log_static(mesg)				\
 	do {								\
 		logger(__func__, mesg);			\
+	} while (false);
+
+#define Log_plain(mesg)					\
+	do {								\
+		logger(mesg);					\
 	} while (false);
 
 // This is functor class used only for generating logs
@@ -54,6 +60,12 @@ public:
 				"In " << func_name << "(): " << mesg << std::endl;
 		
 	}
+	
+	// For displaying plain message
+	void operator () (const std::string& mesg) {
+		std::clog << mesg << std::endl;
+	}
+	
 } 
 logger;
 

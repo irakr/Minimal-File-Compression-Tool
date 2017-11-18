@@ -24,17 +24,8 @@
 #include "min-heap.h"
 #include "logger.h"
 
-/// For comparison of two heap nodes (needed in min heap)
-struct Compare {
-	bool operator () (MinHeapNode* l, MinHeapNode* r) {
-		return (l->freq > r->freq);
-	}
-};
-
-/// Typedef for the huffman tree
-/// A short-form for the weirdly long priority_queue type
 typedef
-	std::priority_queue<MinHeapNode*, std::vector<MinHeapNode*>, Compare>
+	MinHeap<byte, double>
 	HuffmanTree;
 
 /// Typedef for the symbol-frequency table that will be generated from
@@ -59,29 +50,53 @@ typedef
 /// Huffman encoder implementation
 class HuffmanEncoder : public Encoder {
 public:
-	HuffmanEncoder() {}
-	
+	HuffmanEncoder() {
+		m_frequencyTable = new FrequencyTable();
+		m_huffmanTree = new HuffmanTree();
+		m_codewordTable = new CodewordTable();
+	}
+	~HuffmanEncoder() {
+		if(m_frequencyTable)
+			delete m_frequencyTable;
+		if(m_codewordTable)
+			delete m_codewordTable;
+		if(m_huffmanTree)
+			delete m_huffmanTree;
+	}
+
 	// Compresses the file specified by the fstream and returns another
 	// fstream that is a handle to the compressed file.
 	// When called, it clears the internal tables that might have been
 	// filled by a previous operation.
 	// TODO... If the previously compressed file is same then don't clear
 	//         the internal tables. Re-use them.
-	std::fstream& encode(std::fstream&);
-	
+	std::fstream& encode(std::fstream&, std::string&);
+
 private:
 
-	// Build symbol-frequency table
+
+	// Build symbol-frequency table 'm_frequencyTable'
 	void buildFrequencyTable(byte*);
-	
+
 	// Build a huffman tree as priority queue provided by C++ STL
-	HuffmanTree& buildHuffmanTree();
-	
-	// The symbol-frequency table
-	FrequencyTable m_frequencyTable;
-	
-	// Codewords table
-	CodewordTable m_codewordTable;
+	void buildHuffmanTree();
+
+	// Generate code word table
+	void buildCodewordTable(MinHeapNode<byte, double>* root, const std::string& str);
+
+	// Size of the input file
+	fsize_t m_fileSize;
+
+	// The symbol-frequency table built by 'buildFrequencyTable()'
+	// XXX... This value is changed to a pointer type because there was
+	// an unknown issue when it was a value variable.
+	FrequencyTable *m_frequencyTable;
+
+	// The HuffmanTree built by 'buildHuffmanTree()'
+	HuffmanTree *m_huffmanTree;
+
+	// Codewords table built by buildCodewordTable()
+	CodewordTable *m_codewordTable;
 };
 
 #endif

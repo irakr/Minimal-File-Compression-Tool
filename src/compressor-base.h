@@ -23,12 +23,12 @@ class Decoder;
 class Compressor : public ClassInfo {
 protected:
 	std::string m_name; // Registered name of the compression algorithm
-	
+
 	Encoder *m_encoder;
 	Decoder *m_decoder;
 public:
 	std::string name() const { return m_name; }
-	
+
 	Encoder& encoder() { return *m_encoder; }
 	Decoder& decoder() { return *m_decoder; }
 };
@@ -41,7 +41,7 @@ public:
  */
 class Encoder : public ClassInfo {
 public:
-	virtual std::fstream& encode(std::fstream&) = 0;
+	virtual std::fstream& encode(std::fstream&, std::string&) = 0;
 };
 
 /*
@@ -52,7 +52,7 @@ public:
  */
 class Decoder : public ClassInfo {
 public:
-	virtual std::fstream& decode(std::fstream&) = 0;
+	virtual std::fstream& decode(std::fstream&, std::string&) = 0;
 };
 
 #endif

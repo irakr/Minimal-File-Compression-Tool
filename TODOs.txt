@@ -5,3 +5,7 @@ Overall things to be done:-
 2. Decide the appropriate datatype for 'CodewordTable'. Whether to use std::string or std::bitset ???
 
 3. Add error logging feature in logger.h.
+
+4. Change the HuffmanTree implementation.
+
+5. Try to implement the tree traversal algo on MinHeapNode*.

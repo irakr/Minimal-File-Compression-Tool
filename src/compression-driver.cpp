@@ -8,7 +8,7 @@ CompressionDriver :: CompressionDriver(int fCount, const char **fileNames)
 	Log(this, "Started...");
 	if(fCount <= 1)
 		throw std::invalid_argument("No input file(s) provided.");
-	
+
 	for(int i = 0; i < fCount - 1; i++) {
 		std::string *s = new std::string(fileNames[i]);
 		m_fileNames.push_back(*s);
@@ -24,7 +24,7 @@ CompressionDriver :: CompressionDriver(int fCount, const char **fileNames)
 void CompressionDriver :: setCompressor(const std::string& algo) {
 	// TODO... Find valid compressor and register it
 	Log(this, "Started...");
-	
+
 	// --- This code is just for initial testing purpose ---
 	// --- Later we will add separate module for maintaining registered algorithms ---
 	if(algo.compare("Huffman-Coding") == 0)
@@ -40,19 +40,19 @@ std::string CompressionDriver :: getCompressorName() const {
 		std::cerr << "[Fatal Error] Unable to get compression name." << std::endl;
 		return "";
 	}
-	
+
 	return m_Compressor->name();
 }
 
 // Compress the file 'file'
-void CompressionDriver :: compress(const std::string file) {
+void CompressionDriver :: compress(std::string &file) {
 	Log(this, "Started...");
 	if(!m_Compressor) {
 		std::cerr << "[Fatal Error] No compression algorithm registered." << std::endl;
 		return; // FIXME... Throw an exception from here
 	}
-	
-	// TODO ... 
+
+	// TODO ...
 	// Open file named 'file'
 	// Pass the handle to specific encode() function
 	// encode() should return back the compressed file handle
@@ -62,7 +62,7 @@ void CompressionDriver :: compress(const std::string file) {
 		std::cerr << "[Error] The file \"" << file << "\" does not exist." << std::endl;
 		return;
 	}
-	std::fstream& compressedf = m_Compressor->encoder().encode(inputf);
+	std::fstream& compressedf = m_Compressor->encoder().encode(inputf, file);
 	inputf.close();
 	compressedf.close();
 }
@@ -75,8 +75,8 @@ void CompressionDriver :: compressAll() {
 }
 
 // Decompress the compressed file 'file'
-void CompressionDriver :: decompress(const std::string file) {
-	// TODO ... 
+void CompressionDriver :: decompress(std::string &file) {
+	// TODO ...
 	// Open file named 'file'
 	// Pass the handle to specific decode() function
 	// decode() should return back the decompressed file handle
@@ -85,11 +85,11 @@ void CompressionDriver :: decompress(const std::string file) {
 		std::cerr << "[Error] The file \"" << file << "\" does not exist." << std::endl;
 		return;
 	}
-	std::fstream& decompressedf = m_Compressor->decoder().decode(inputf);
+	std::fstream& decompressedf = m_Compressor->decoder().decode(inputf, file);
 	inputf.close();
 	decompressedf.close();
 }
-	
+
 // Decompress all files in m_fileNames
 void CompressionDriver :: decompressAll() {
 	for(std::vector<std::string>::iterator i = m_fileNames.begin(); i != m_fileNames.end(); i++)

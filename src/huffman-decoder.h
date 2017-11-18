@@ -11,10 +11,10 @@
 class HuffmanDecoder : public Decoder {
 public:
 	HuffmanDecoder() {}
-	
+
 	// Decompresses the file specified by the fstream and returns
 	// another fstream that is a handle to the decompressed file
-	std::fstream& decode(std::fstream&);
+	std::fstream& decode(std::fstream&, std::string&);
 };
 
 #endif
