@@ -19,7 +19,7 @@ int main(int argc, char **argv) {
 
 	cout << " --- Still under construction ---" << endl;
 	Log_static("Started...");
-
+	
 	try {
 		CompressionDriver driver(argc, (const char**)(argv+1));
 		driver.setCompressor("Huffman-Coding");

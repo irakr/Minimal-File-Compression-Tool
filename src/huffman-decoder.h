@@ -14,7 +14,7 @@ public:
 
 	// Decompresses the file specified by the fstream and returns
 	// another fstream that is a handle to the decompressed file
-	std::fstream& decode(std::fstream&, std::string&);
+	byte* decode(byte*, fsize_t*);
 };
 
 #endif

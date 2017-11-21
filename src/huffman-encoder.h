@@ -22,8 +22,10 @@
 #include <unordered_map>
 #include "compressor-base.h"
 #include "min-heap.h"
+#include "metadata.h"
 #include "logger.h"
 
+/// Typedef for a simple min-heap based huffman tree type
 typedef
 	MinHeap<byte, double>
 	HuffmanTree;
@@ -70,7 +72,7 @@ public:
 	// filled by a previous operation.
 	// TODO... If the previously compressed file is same then don't clear
 	//         the internal tables. Re-use them.
-	std::fstream& encode(std::fstream&, std::string&);
+	byte* encode(byte *in_buff, fsize_t *buff_len);
 
 private:
 
@@ -78,14 +80,19 @@ private:
 	// Build symbol-frequency table 'm_frequencyTable'
 	void buildFrequencyTable(byte*);
 
-	// Build a huffman tree as priority queue provided by C++ STL
+	// Build a huffman tree 'm_huffmanTree' as a
+	// priority queue provided by C++ STL
 	void buildHuffmanTree();
 
-	// Generate code word table
-	void buildCodewordTable(MinHeapNode<byte, double>* root, const std::string& str);
+	// Generate code word table 'm_codewordTable'
+	void buildCodewordTable();
 
-	// Size of the input file
-	fsize_t m_fileSize;
+	// Generates the compressed content portion only from the
+	// input buffer and returns it.
+	byte* getCompressedContent(byte *in_buff);
+
+	// Size of the input buffer
+	fsize_t m_inBuffSize;
 
 	// The symbol-frequency table built by 'buildFrequencyTable()'
 	// XXX... This value is changed to a pointer type because there was

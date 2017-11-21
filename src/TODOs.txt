@@ -6,4 +6,12 @@ TODO list:
 
 3. "HuffmanEncoder::encode()": If the previously compressed file is same then don't clear the internal tables. Re-use them.
 
-4. Since the MinHeap API is GOOD now, finish the HuffmanEncoder module.
+4. Generate actual bit-sequence of the codewords.
+
+5. get_compressed_byte_stream()
+
+
+6. Unidentified bug at [hdr_2_bytes(): __base__ + 26]
+  - For now it assumed to be good and left as is.
+  - In future if any bug occurs that relate to this issue then immediate
+    actions will be taken.

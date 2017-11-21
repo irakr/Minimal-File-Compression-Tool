@@ -41,7 +41,10 @@ public:
  */
 class Encoder : public ClassInfo {
 public:
-	virtual std::fstream& encode(std::fstream&, std::string&) = 0;
+	// XXX... fsize_t* is an out parameter.
+	// It should be used to pass the size of the input buffer as well
+	// return the size of the output buffer generated.
+	virtual byte* encode(byte*, fsize_t*) = 0;
 };
 
 /*
@@ -52,7 +55,7 @@ public:
  */
 class Decoder : public ClassInfo {
 public:
-	virtual std::fstream& decode(std::fstream&, std::string&) = 0;
+	virtual byte* decode(byte*, fsize_t*) = 0;
 };
 
 #endif

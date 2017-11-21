@@ -4,7 +4,8 @@ OBJECTS = $(SOURCES:.cpp=.o)
 
 #CXX = g++
 CXXFLAGS = -Wall -g -std=c++14
-DEFINES = -DDEBUG_ON
+DEFINES = 
+			#-DDEBUG_ON
 INCLUDE_DIRS = -Isrc/
 CPPFLAGS = $(DEFINES) $(INCLUDE_DIRS)
 LDFLAGS = 

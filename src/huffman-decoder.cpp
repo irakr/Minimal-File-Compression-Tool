@@ -1,6 +1,6 @@
 #include "huffman-decoder.h"
 
-std::fstream& HuffmanDecoder :: decode(std::fstream &ifile, std::string &ofilename ) {
+byte* HuffmanDecoder :: decode(byte *in_buff, fsize_t *buff_len) {
 	std::cout << "In HuffmanDecoder::decode()" << std::endl;
-	return ifile;
+	return NULL;
 }

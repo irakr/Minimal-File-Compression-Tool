@@ -2,52 +2,121 @@
 #include <exception>
 #include <climits>
 #include <cstring>
-
-// Just a trivial wrapper for getting file length
-static inline fsize_t getFileSize(std::fstream& f) {
-	Log_static("Started...");
-
-	if(!f.is_open())
-		return -1;
-	f.seekg(0, f.end);
-	fsize_t file_size = f.tellg(); // This may also return -1
-	f.seekg(0, f.beg);
-	return file_size;
-}
+#include <functional>
 
 // XXX... Currently supports only ascii text files
 // Compresses the file specified by the fstream and returns
 // another fstream that is a handle to the compressed file
-std::fstream& HuffmanEncoder :: encode(std::fstream &ifile, std::string &ofilename) {
+byte* HuffmanEncoder :: encode(byte *in_buff, fsize_t *buff_len) {
 	//@std::cout << "In HuffmanEncoder::encode()" << std::endl;
 	Log(this, "Started...");
 
-	std::fstream *ofile = 0; // Output file
+	m_inBuffSize = *buff_len;
 
-	// Parse the text file and generate a symbol-frequency table
-	// TODO ...
+	// This will hold bytes of the compressed data;
+	// Header + content
+	byte *out_buff = NULL;
 
-	if(!ifile.is_open())
-		throw 10;
+	try {
+		// All the 3 statements below must be in this sequence only.
+		buildFrequencyTable(in_buff);			// (OK)
+		buildHuffmanTree();						// (OK)
+		buildCodewordTable();					// (OK)
+	}
+	catch(std::exception &e) {
+		std::cerr << e.what() << std::endl
+			<< "[.......Rethrowing exception]" << std::endl;
+		throw (new std::exception(e));
+	}
 
-	m_fileSize = getFileSize(ifile);
-	//std::cout << "File size = " << m_fileSize << std::endl;
+	// FIXME & TODO ... This code is just temporary.
+	// Later the metadata specific operations will be moved to the
+	// actual metadata module.
+	int i = 0;
+	struct codeword_map_struct temp[(*m_codewordTable).size()];
+	for(auto &x : *m_codewordTable) {
+		temp[i].sym = x.first; // 'byte'
+		//@@@ std::cout << temp[i].sym << " : " << x.second << " : ";
+		// Reserve enough bytes in 'temp[i].codeword.cw' for store codeword bits
+		fsize_t word_len = compute_word_len(x.second.length());
+		//@@@ std::cout << word_len << " : ";
+		temp[i].codeword.cw = new byte[word_len];
+		temp[i].codeword.n_bits = word_len;
+		memset(temp[i].codeword.cw, 0, word_len);
 
-	// Open output file. The size will be obviously less than or impossibly
-	// equal to the input file size.
-	ofile = new std::fstream();
-	ofile->open(ofilename, std::fstream::in | std::fstream::binary);
+		// TODO... Make this code a separate module.
+		// Now push each character as a bit into 'cw'
+		int byte_forwarder = 8; //XXX... Required if 'cw' is multibyte
+		int j = 0; // 'cw' index
+		for(char& ch : x.second) {
+			if(byte_forwarder > 0) {
+				temp[i].codeword.cw[j] <<= 1; // left shift by 1 bit
+				if(ch == '1') {
+					temp[i].codeword.cw[j] =
+						temp[i].codeword.cw[j] | 0x01; // or with 1
+				}
+				else if(ch == '0') {
+					temp[i].codeword.cw[j] =
+						temp[i].codeword.cw[j] | 0x00; // or with 0;
+				}
+				else {
+					std::cerr <<
+						"[Fatal Error]: Codeword is invalid"
+						<< std::endl;
+						throw (new std::exception());
+				}
+				byte_forwarder--;
+			} //(byte_forwarder>0)
+			else {
+				byte_forwarder = 8;
+				j++;
+			}
+		}
 
-	byte *raw_byte_buff = new byte[m_fileSize + 1];
-	ifile.read((char*)raw_byte_buff, m_fileSize);
-	raw_byte_buff[m_fileSize - 1] = 0; // Append null at the end because read() doesn't
+		/* Just checking 'cw'....
+		for(int k=0; k<=j; ++k)
+			std::cout << "0x" << std::hex << (int)temp[i].codeword.cw[k] << std::endl
+				<< std::dec;
+		*/
+		i++; // To next symbol(byte)
+	}
 
-	//std::cout << raw_byte_buff << std::endl << "No. of bytes read = " << ifile.gcount() << std::endl;
+	// Almost all header parameters are set here.
+	struct header_struct *header = init_header(m_codewordTable);
+	header->cw_map = temp;
+	header->compression_algo = HUFFMAN_CODEC;
+	header->file_state = header_struct::state::COMPRESSED;
 
-	buildFrequencyTable(raw_byte_buff);  //OK
-	buildHuffmanTree();					//OK
+	// Compute the total header size...
+    unsigned long cw_map_offset = (unsigned long)&(header->cw_map) - (unsigned long)header;
+	unsigned long cw_codeword_offset =
+		(unsigned long)&(header->cw_map[0].codeword) - (unsigned long)(header->cw_map);
+	unsigned long cw_offset =
+	    (unsigned long)&(header->cw_map->codeword.cw) - (unsigned long)&(header->cw_map->codeword);
+	header->header_size
+		= cw_map_offset	+ header->n_syms *
+		  (cw_codeword_offset +
+			  (cw_offset + compute_word_len(header->cw_map->codeword.n_bits))
+		  );
+	//@@@ std::cout << "size(header) = " << header->size() << std::endl;
+	/*
+	std::cout << (int)header->compression_algo << ", "
+		<< header->file_state << ", " <<
+		header->n_syms << ", [" <<
+		header->cw_map << std::endl;
+	std::cout << HUFFMAN_CODEC << ", "
+			<< header_struct::state::COMPRESSED << ", " <<
+			header->n_syms << ", [" <<
+			header->cw_map << std::endl;
+	*/
 
-	return *ofile;
+	// By this moment the 'header' struct is completely set with
+	// appropriate parameters.
+
+	out_buff = get_compressed_byte_stream(in_buff, m_inBuffSize, header); // TODO
+	std::cout << "Header size = " << header->size() <<  std::endl;
+	*buff_len = header->compressed_size;
+	return out_buff;
 }
 
 // Build symbol-frequency table
@@ -55,7 +124,7 @@ void HuffmanEncoder :: buildFrequencyTable(byte *buffer) {
 	//@std::cout << "In HuffmanEncoder::buildFrequencyTable()" << std::endl;
 	Log(this, "Started...");
 
-	std::cout << "File size: " << m_fileSize << std::endl;
+	std::cout << "File size: " << m_inBuffSize << std::endl;
 
 	// Compute the frequencies of each byte in buffer and generate the
 	// symbol-frequency map
@@ -84,7 +153,7 @@ void HuffmanEncoder :: buildFrequencyTable(byte *buffer) {
 
 
 	for(auto& x : *m_frequencyTable)
-		x.second = (x.second / m_fileSize) * 100;
+		x.second = (x.second / m_inBuffSize) * 100;
 
 	/****** Test *******
 	for(auto& x : *m_frequencyTable)
@@ -129,12 +198,15 @@ void HuffmanEncoder :: buildHuffmanTree() {
 		m_huffmanTree->push(top);
 	}
 	//printMinheap(*m_huffmanTree);
-	traversePreorder(m_huffmanTree->top(), "");
+	//traversePreorder(m_huffmanTree->top(), "");
 }
 
+// TODO TODO TODO TODO
 // Generate code word table
-void HuffmanEncoder :: buildCodewordTable(MinHeapNode<byte, double>* root, const std::string& str)
+void HuffmanEncoder :: buildCodewordTable()
 {
+	Log(this, "Started...");
+
 	/* --- This code is unlikely to happen unless someone really forgets ---
 	 * -- Avoided! Since it will unnecessarily occupy each recursion stack --
 	 *
@@ -143,12 +215,25 @@ void HuffmanEncoder :: buildCodewordTable(MinHeapNode<byte, double>* root, const
 		throw 10;
 	*/
 
-	if (!root)
-		return;
+	// Huffman tree parser lambda
+	std::function<void(MinHeapNode<byte, double>*, const std::string&)>
+		huffmanTreeParser;
+	huffmanTreeParser =
+			[&](MinHeapNode<byte, double>* root, const std::string &codeword) {
+				if(root) {
+					if(!root->isInternalNode()) {
+						(*m_codewordTable)[root->data] = codeword;
+						//@@@ std::cout << root->data << ": " << codeword << std::endl;
+					}
+					huffmanTreeParser(root->left, codeword + "0");
+					huffmanTreeParser(root->right, codeword + "1");
+				}
+			};
 
-	if (!root->isInternalNode())
-		(*m_codewordTable)[root->data] += str;
+	huffmanTreeParser(m_huffmanTree->top(), "");
 
-	buildCodewordTable(root->left, "0");
-	buildCodewordTable(root->right, "1");
+	/* Just testing
+	for(auto &x : *m_codewordTable)
+		std::cout << x.first << " : " << x.second << std::endl;
+	*/
 }
