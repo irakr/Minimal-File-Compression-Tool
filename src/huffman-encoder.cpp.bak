@@ -1,8 +1,8 @@
+#include "huffman-encoder.h"
 #include <exception>
 #include <climits>
 #include <cstring>
 #include <functional>
-#include "huffman-encoder.h"
 
 // XXX... Currently supports only ascii text files
 // Compresses the file specified by the fstream and returns
@@ -35,7 +35,50 @@ byte* HuffmanEncoder :: encode(byte *in_buff, fsize_t *buff_len) {
 	int i = 0;
 	struct codeword_map_struct temp[(*m_codewordTable).size()];
 	for(auto &x : *m_codewordTable) {
-		
+		temp[i].sym = x.first; // 'byte'
+		//@@@ std::cout << temp[i].sym << " : " << x.second << " : ";
+		// Reserve enough bytes in 'temp[i].codeword.cw' for store codeword bits
+		fsize_t word_len = compute_word_len(x.second.length());
+		//@@@ std::cout << word_len << " : ";
+		temp[i].codeword.cw = new byte[word_len];
+		temp[i].codeword.n_bits = word_len;
+		memset(temp[i].codeword.cw, 0, word_len);
+
+		// TODO... Make this code a separate module.
+		// Now push each character as a bit into 'cw'
+		int byte_forwarder = 8; //XXX... Required if 'cw' is multibyte
+		int j = 0; // 'cw' index
+		for(char& ch : x.second) {
+			if(byte_forwarder > 0) {
+				temp[i].codeword.cw[j] <<= 1; // left shift by 1 bit
+				if(ch == '1') {
+					temp[i].codeword.cw[j] =
+						temp[i].codeword.cw[j] | 0x01; // or with 1
+				}
+				else if(ch == '0') {
+					temp[i].codeword.cw[j] =
+						temp[i].codeword.cw[j] | 0x00; // or with 0;
+				}
+				else {
+					std::cerr <<
+						"[Fatal Error]: Codeword is invalid"
+						<< std::endl;
+						throw (new std::exception());
+				}
+				byte_forwarder--;
+			} //(byte_forwarder>0)
+			else {
+				byte_forwarder = 8;
+				j++;
+			}
+		}
+
+		/* Just checking 'cw'....
+		for(int k=0; k<=j; ++k)
+			std::cout << "0x" << std::hex << (int)temp[i].codeword.cw[k] << std::endl
+				<< std::dec;
+		*/
+		i++; // To next symbol(byte)
 	}
 
 	// Almost all header parameters are set here.

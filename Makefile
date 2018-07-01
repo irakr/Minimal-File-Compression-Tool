@@ -3,9 +3,8 @@ include src/Sources.mk
 OBJECTS = $(SOURCES:.cpp=.o)
 
 #CXX = g++
-CXXFLAGS = -Wall -g -std=c++14
-DEFINES = 
-			#-DDEBUG_ON
+CXXFLAGS = -Wall -g -std=c++14 -O0
+DEFINES = -DDEBUG_ON
 INCLUDE_DIRS = -Isrc/
 CPPFLAGS = $(DEFINES) $(INCLUDE_DIRS)
 LDFLAGS = 

@@ -26,6 +26,7 @@ void CompressionDriver :: setCompressor(const std::string& algo) {
 	Log(this, "Started...");
 
 	// --- This code is just for initial testing purpose ---
+	// --- Yea it is currently hard-coded kinda ---
 	// --- Later we will add separate module for maintaining registered algorithms ---
 	if(algo.compare("Huffman-Coding") == 0)
 		m_Compressor = new HuffmanCompressor();
@@ -89,7 +90,7 @@ void CompressionDriver :: compress(std::string &ifilename) {
 	byte *in_data_byte_buff = new byte[file_size + 1];
 	inputf.read((char*)in_data_byte_buff, file_size);
 	in_data_byte_buff[file_size] = 0; // Append null at the end because read() doesn't
-	//std::cout << "file_buff" << in_data_byte_buff << std::endl;
+	std::cout << "file_buff: " << in_data_byte_buff << std::endl;
 
 	// Get the compressed byte stream
 	byte* compressed_buff = m_Compressor->encoder().encode(in_data_byte_buff, &file_size);

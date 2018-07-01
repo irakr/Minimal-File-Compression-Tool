@@ -48,17 +48,53 @@ byte* get_compressed_byte_stream(byte *in_buff, fsize_t buff_len, struct header_
     // Content portion continues from here...
     ret += header->size();
 
+	/*------------------------------------ TODO ------------------------------------ */
     // Fill the output buff appropriately using the 'header' and 'in_buff'
     int i = 0;
+    register uint32_t cw_ptr = 0; // This will be used for packing cw
+	int32_t places_left = sizeof(uint32_t) * 8;
+    fsize_t n_bits = 0, n_bytes = 0;
+    struct codeword_map_struct* cw_entry = 0;
     for(byte* in_ptr = in_buff; *in_ptr != '\0'; ++in_ptr, ++i) {
-        struct codeword_map_struct* cw_entry = get_cw_entry(in_ptr, header);
+        cw_entry = get_cw_entry(in_ptr, header);
         //@@@ std::cout << "i = " << i << " (" << *in_ptr << ")" << std::endl;
+
+        // Just shortening the long accessing statement
+        n_bits += cw_entry->codeword.n_bits;
+        n_bytes = (fsize_t)compute_word_len(n_bits);
+		uint32_t temp = cw_entry->codeword.cw[0];
+		
+		// Step: Shift the codeword bits to the MSB portion.
+		uint32_t dist_to_msb = sizeof(uint32_t) * 8 - n_bits;
+		temp <<= dist_to_msb;
+		if((places_left -= n_bits) <= 0) {
+			;//cw_ptr = 
+		}
+		cw_ptr ^= temp;
+		
+		
+		
+	#ifdef CRAP
+        // left shift the register and copy the first byte of 'cw'
+        // to that 32-bit register.
+        cw_ptr <<= n_bits;
+        shifts += n_bits; // keep track of overflowing 32-bit register
+        cw_ptr = (int32_t)cw_entry->codeword.cw[0];
+        /* TODO
+        for(fsize_t i = 1; i < n_bytes; ++i) {  // Follow next byte if exists
+            if(cw_ptr < 0)
+        }
+        */
+	#endif
+
+    #ifdef CRAP
         fsize_t bytes_to_copy =
             (fsize_t)compute_word_len(cw_entry->codeword.n_bits);
         memcpy((char*)ret, (char*)(cw_entry->codeword.cw),
             bytes_to_copy);
         ret += bytes_to_copy;
         header->compressed_size += bytes_to_copy;
+    #endif
         //std::cout << "cs += bytes_to_copy: " << header->compressed_size
         //    << " += " << bytes_to_copy << std::endl;
     }
@@ -101,6 +137,9 @@ void hdr_2_bytes(byte *out, struct header_struct *hdr) {
     }
 }
 
+// XXX - This function performs linear search.
+//     - It will soon be replaced by some other better algorithm, most
+//       probably a HASHING ALGORITHM.
 // Lookup for the codeword of 'sym' in 'header.cw_map[]' field
 // and return a pointer to the particular entry.
 struct codeword_map_struct*
