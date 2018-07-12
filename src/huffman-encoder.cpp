@@ -3,8 +3,9 @@
 #include <cstring>
 #include <functional>
 #include "huffman-encoder.h"
+#include "header.h"
 
-// XXX... Currently supports only ascii text files
+// XXX... Currently supports only ascii text files.
 // Compresses the file specified by the fstream and returns
 // another fstream that is a handle to the compressed file
 byte* HuffmanEncoder :: encode(byte *in_buff, fsize_t *buff_len) {
@@ -29,50 +30,20 @@ byte* HuffmanEncoder :: encode(byte *in_buff, fsize_t *buff_len) {
 		throw (new std::exception(e));
 	}
 
-	// FIXME & TODO ... This code is just temporary.
-	// Later the metadata specific operations will be moved to the
-	// actual metadata module.
-	int i = 0;
-	struct codeword_map_struct temp[(*m_codewordTable).size()];
-	for(auto &x : *m_codewordTable) {
-		
-	}
-
-	// Almost all header parameters are set here.
-	struct header_struct *header = init_header(m_codewordTable);
-	header->cw_map = temp;
-	header->compression_algo = HUFFMAN_CODEC;
-	header->file_state = header_struct::state::COMPRESSED;
-
-	// Compute the total header size...
-    unsigned long cw_map_offset = (unsigned long)&(header->cw_map) - (unsigned long)header;
-	unsigned long cw_codeword_offset =
-		(unsigned long)&(header->cw_map[0].codeword) - (unsigned long)(header->cw_map);
-	unsigned long cw_offset =
-	    (unsigned long)&(header->cw_map->codeword.cw) - (unsigned long)&(header->cw_map->codeword);
-	header->header_size
-		= cw_map_offset	+ header->n_syms *
-		  (cw_codeword_offset +
-			  (cw_offset + compute_word_len(header->cw_map->codeword.n_bits))
-		  );
-	//@@@ std::cout << "size(header) = " << header->size() << std::endl;
-	/*
-	std::cout << (int)header->compression_algo << ", "
-		<< header->file_state << ", " <<
-		header->n_syms << ", [" <<
-		header->cw_map << std::endl;
-	std::cout << HUFFMAN_CODEC << ", "
-			<< header_struct::state::COMPRESSED << ", " <<
-			header->n_syms << ", [" <<
-			header->cw_map << std::endl;
-	*/
-
-	// By this moment the 'header' struct is completely set with
-	// appropriate parameters.
-
-	out_buff = get_compressed_byte_stream(in_buff, m_inBuffSize, header); // TODO
-	std::cout << "Header size = " << header->size() <<  std::endl;
-	*buff_len = header->compressed_size;
+	// Build the file header.
+	HeaderStruct header;
+	build_header(&header, *m_codewordTable);
+	
+	// Build the compressed data(payload)
+	size_t out_size = get_compressed_size(&header) + get_header_size(&header);
+	out_buff = new byte[out_size];
+	
+	dump_header(&header, out_buff);
+    //dump_content(&header, in_buff, *buff_len, out_buff + get_compressed_size(&header));
+    dump_content(&header, in_buff, *buff_len, out_buff + get_compressed_size(&header));
+	
+	// TODO...
+	
 	return out_buff;
 }
 

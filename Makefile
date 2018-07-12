@@ -8,7 +8,7 @@ DEFINES = -DDEBUG_ON
 INCLUDE_DIRS = -Isrc/
 CPPFLAGS = $(DEFINES) $(INCLUDE_DIRS)
 LDFLAGS = 
-OUTPUT = bin/test.out
+OUTPUT = bin/zz
 
 %.o: %.cpp
 	$(CXX) $(CPPFLAGS) $(CXXFLAGS) $(INCLUDE_DIRS) $< -c -o $@

@@ -3,13 +3,9 @@
 
 #include <iostream>
 #include <fstream>
+#include "zz_types.h"
 #include "base-class.h"
 
-// Typedef for a raw byte
-typedef unsigned char byte;
-
-// Typedef for a file size
-typedef long int fsize_t;
 
 class Encoder;
 class Decoder;

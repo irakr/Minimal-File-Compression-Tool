@@ -20,10 +20,13 @@
 #include <queue>
 #include <vector>
 #include <unordered_map>
+#include "zz_types.h"
 #include "compressor-base.h"
 #include "min-heap.h"
-#include "metadata.h"
+//#include "header.h"
 #include "logger.h"
+
+#define HUFFMAN_BLOCK_SIZE      8
 
 /// Typedef for a simple min-heap based huffman tree type
 typedef

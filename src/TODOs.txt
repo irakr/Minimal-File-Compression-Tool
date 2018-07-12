@@ -14,6 +14,7 @@ TODO list:
 6. New solution found: Writing a structure with pointers inside it into a binary file can be done directly by file.write() function.
    No need to separately work on writing pointers. YEAAAYYY!!
    
-7. Modify the following data structures:
+7. Modify the following files and data structures:
    -> struct codeword_map_struct; (Remove)
    -> struct header_struct;       (Modify)
+   -> metadata.{h,cpp}            (Remove and write afresh)
