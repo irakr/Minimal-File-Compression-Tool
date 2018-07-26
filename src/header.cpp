@@ -8,6 +8,8 @@
 #include "huffman-encoder.h"
 #include "bit-manip.h"
 
+// This function computes the absolute size of the header structure,
+// without considering the structure padding bytes.
 size_t get_header_size(HeaderStruct* header) {
     Log_static("Started...");
     if(!header)
@@ -16,14 +18,12 @@ size_t get_header_size(HeaderStruct* header) {
     // XXX... Note that this code will work incorrectly if
     // this function is called for some other input file 
     // within a lifetime of the program.
-    // So I recommend replace this portion with:
+    // So I recommend replace the below 3 lines of code with just:
     // size_t ret = 0;
-    static size_t ret = 0;
-    if(ret > 0)
-        return ret;
+    size_t ret = 0;
     
-    ret++; // sizeof(header->nSyms) == 1
-    ret += header->nSyms * sizeof(*header->cw_table);
+    ret = sizeof(int) + sizeof(size_t) * 2 + 1; // header_size + original_size + compressed_size + nSyms
+    ret += header->nSyms * sizeof(*header->cw_table); // Total summation of sizes of each cw_table entry.
     return ret;
 }
 
@@ -60,32 +60,36 @@ void build_header(HeaderStruct *hdr, CodewordTable &cw_table) {
     hdr->cw_table = new HeaderStruct::codeword_table[hdr->nSyms];
     
     // Migrate the CodewordTable contents to codeword_table contents
-    // TODO...
     int i = 0;
     for(auto &x : cw_table) {
         hdr->cw_table[i].symbol = x.first;
         hdr->cw_table[i].codeword = str2bits(x.second);
-        hdr->cw_table[i].nBits = x.second.length() - 1; // Bcoz 0-indexed
+        hdr->cw_table[i].nBits = x.second.length();
         ++i;
     }
 }
 
 // Computes and returns the estimated size of the compressed data.
 // It is the sum of all codeword_table.nBits.
-size_t get_compressed_size(HeaderStruct *hdr) {
+// Returns the size in terms of bits.
+// XXX...NOTE: At first call to this function, @freqsym_map must be passed.
+size_t get_compressed_size(HeaderStruct * const hdr, const FrequencyTable &freqsym_map) {
     Log_static("Started...");
     if(!hdr)
         return -1;
     
-    static size_t ret = 0;
+    size_t ret;
+    double temp1 = 0, temp2 = 0;
     
-    // If computed before, then no need to recompute.
-    if(ret > 0)
-        return ret;
-        
-    for(int i = 0; i < hdr->nSyms; i++)
-        ret += hdr->cw_table[i].nBits;
-    ret += hdr->nSyms;
+    // XXX... Note that this calculates the size in terms of bits.
+    // Convert it to bytes before returning.
+    for(uint8_t i = 0; i < hdr->nSyms; i++) {
+        temp1 = ( (double)freqsym_map.at(hdr->cw_table[i].symbol) * hdr->original_size ) / 100.0; // % to number
+        temp2 += (double)hdr->cw_table[i].nBits * temp1;
+    }
+    
+    temp2 /= 8;
+    ret = ceil(temp2);
     return ret;
 }
 
@@ -95,9 +99,29 @@ void dump_header(HeaderStruct* header, byte* buff) {
     if(!header || !buff)
         return; // TODO... Create a NullArgumentException class
     
+    byte *temp = buff;
+    
+    // FIXME... Examine in tests properly.
+    memcpy((int*)buff, (int*)(&header->header_size), sizeof(int));
+    
+    // XXX...Important
+    // Move buff ptr as the same no of bytes as the distance between
+    // header.header_size and header.original_size.
+    // This allows buff to take the exact image of the header structure
+    // including structure padding bytes.
+    // This is done all other similar steps below.
+    buff += (uint64_t)((uint64_t)&header->original_size - (uint64_t)&header->header_size);
+    
+    memcpy((size_t*)buff, (size_t*)(&header->original_size), sizeof(size_t));
+    buff += (uint64_t)((uint64_t)&header->compressed_size - (uint64_t)&header->original_size);
+    memcpy((size_t*)buff, (size_t*)(&header->compressed_size), sizeof(size_t));
+    buff += (uint64_t)((uint64_t)&header->nSyms - (uint64_t)&header->compressed_size);
+    
     buff[0] = header->nSyms;
+    buff += (uint64_t)((uint64_t)&header->cw_table - (uint64_t)&header->nSyms);
+    
     size_t cw_table_size = sizeof(*header->cw_table) * header->nSyms;
-    memcpy(buff+1, header->cw_table, cw_table_size);
+    memcpy(buff, header->cw_table, cw_table_size);
     
 }
 
@@ -105,7 +129,7 @@ void dump_header(HeaderStruct* header, byte* buff) {
 // If the function is called consecutively for the same symbol then
 // the cached pointer will be returned. This increases efficiency.
 static HeaderStruct::codeword_table *get_cw_entry(HeaderStruct *header, uchar_t *symbol) {
-    int i;
+    uint8_t i;
     static uchar_t sym = 0xff; // 0xff is unlikely to come.
     static HeaderStruct::codeword_table *cache = NULL;
     
@@ -135,18 +159,21 @@ void dump_content(HeaderStruct* header, byte *ibuff, size_t ibuff_size, byte* ob
     // Push the bits into buff according to
     // the codeword_table in the header.
     HeaderStruct::codeword_table *cw_entry;
-    BitStream bit_stream(get_compressed_size(header));
-    int i;
+    BitStream bit_stream(header->compressed_size); // FIXME... Incorrect argument
+    uint32_t i;
     for(i = 0; i < ibuff_size; i++) {
         cw_entry = get_cw_entry(header, ibuff+i);
 
         try {
             bit_stream.push(cw_entry->codeword, cw_entry->nBits);
-        } catch(std::overflow_error &e) {
+        } catch(std::overflow_error *e) {
+        	Log_static(e->what());
+        	exit(1);
             break;
         }
         
     }
     
+    ::memcpy(obuff, bit_stream.getBitStreamRaw(), bit_stream.buffSize());
     
 }
