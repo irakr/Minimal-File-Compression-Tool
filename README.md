@@ -18,9 +18,8 @@
 # Usage guide:
 - Run the file bin/zz to use the program.
 - Usage:
-  > zz <filename>
+  > zz \<filename\>
 - The compressed file generated will be produced in the same directory with a
   ".compressed" string appended to its name.
 
-# (NOTE: This program only works for ASCII text files. I do not guarantee the
-#  result of compressing other type of files and ofcourse it won't work correctly.)
+# (NOTE: This program only works for ASCII text files. I do not guarantee the result of compressing other type of files and ofcourse it won't work correctly.)
