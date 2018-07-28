@@ -10,11 +10,13 @@ int main(void) {
    */
   BitVector bit_vector(0x07);
   cout << bit_vector << endl;
-  bit_vector.appendBit(0x00, 5);
+  //bit_vector.appendBit(0x00, 5);
+  //cout << bit_vector << endl;
+  //bit_vector.appendBit(0x01, 5);
+  //cout << bit_vector << endl;
+  bit_vector.appendByte(0x0f);
   cout << bit_vector << endl;
-  bit_vector.appendBit(0x01, 5);
-  cout << bit_vector << endl;
-  bit_vector.appendBit(0x00, 3);
+  bit_vector.appendBit(0x01, 3);
   cout << bit_vector << endl;
 
   uchar_t *arr = (uchar_t*)bit_vector.toCharArray();

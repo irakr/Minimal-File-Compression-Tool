@@ -50,6 +50,7 @@ class BitVector
     void toggleBit(int pos);
     bool getBit(int pos) const;
     void appendByte(uint8_t value);
+    void appendByte(uint8_t value, unsigned int n);
     unsigned int getSize() const { return size; }
     unsigned int getNumberOfBytes() const { return bytes.size(); }
     const std::vector<uint8_t>& getBytes() const { return bytes; }

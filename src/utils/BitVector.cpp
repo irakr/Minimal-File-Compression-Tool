@@ -123,6 +123,18 @@ void BitVector::appendByte(uint8_t value)
         appendBit(value & (1 << i));
 }
 
+/*
+ * Added by: Irak Rigia
+ *
+ * Similar to appendByte(value); except this function appends only n bits
+ * starting from the LSB of value.
+ */
+void BitVector::appendByte(uint8_t value, unsigned int n)
+{
+    for (unsigned int i = 0; i < n; i++)
+        appendBit(value & (1 << i));
+}
+
 std::string BitVector::toString() const
 {
     std::string str;

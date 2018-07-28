@@ -50,8 +50,8 @@ byte* HuffmanEncoder :: encode(byte *in_buff, fsize_t *buff_len) {
     //dump_content(&header, in_buff, *buff_len, out_buff + get_compressed_size(&header));
     dump_content(&header, in_buff, *buff_len, out_buff + header.header_size);
 	
-	// TODO...
-	
+	// Return compressed file buffer and its size.
+	*buff_len = out_size;
 	return out_buff;
 }
 
