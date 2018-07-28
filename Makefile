@@ -3,15 +3,22 @@ include src/Sources.mk
 OBJECTS = $(SOURCES:.cpp=.o)
 
 #CXX = g++
-CXXFLAGS = -Wall -g -std=c++14 -O0
-DEFINES = -DDEBUG_ON
+CXXFLAGS = -Wall -std=c++14
+DEFINES =
 INCLUDE_DIRS = -Isrc/
+
+# Command line arg parse
+ifeq ($(debug), y)
+	CXXFLAGS += -g -O0
+	DEFINES = -DDEBUG_ON
+endif
+
 CPPFLAGS = $(DEFINES) $(INCLUDE_DIRS)
 LDFLAGS = 
 OUTPUT = bin/zz
 
 %.o: %.cpp
-	$(CXX) $(CPPFLAGS) $(CXXFLAGS) $(INCLUDE_DIRS) $< -c -o $@
+	$(CXX) $(CPPFLAGS) $(CXXFLAGS) $< -c -o $@
 
 $(OUTPUT): $(OBJECTS)
 	-mkdir bin

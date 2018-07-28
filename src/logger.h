@@ -21,6 +21,9 @@
 #define Log(obj, mesg)
 #define Log_static(mesg)
 #define Log_plain(mesg)
+#define Logf(obj, ...)
+#define Log_staticf(...)
+#define Log_plainf(...)
 
 #else
 

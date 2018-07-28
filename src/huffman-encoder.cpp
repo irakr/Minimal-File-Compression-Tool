@@ -60,8 +60,6 @@ void HuffmanEncoder :: buildFrequencyTable(byte *buffer) {
 	//@std::cout << "In HuffmanEncoder::buildFrequencyTable()" << std::endl;
 	Log(this, "Started...");
 
-	std::cout << "File size: " << m_inBuffSize << std::endl;
-
 	// Compute the frequencies of each byte in buffer and generate the
 	// symbol-frequency map
 	int i, j;	//, freq_len = 0;

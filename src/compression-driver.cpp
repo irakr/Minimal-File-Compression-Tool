@@ -38,7 +38,7 @@ void CompressionDriver :: setCompressor(const std::string& algo) {
 std::string CompressionDriver :: getCompressorName() const {
 	Log(this, "Started...");
 	if(!m_Compressor) {
-		std::cerr << "[Fatal Error] Unable to get compression name." << std::endl;
+		Log(this, "[Fatal Error] Unable to get compression name.");
 		return "";
 	}
 
@@ -61,15 +61,14 @@ static inline fsize_t getFileSize(std::fstream& f) {
 void CompressionDriver :: compress(std::string &ifilename) {
 	Log(this, "Started...");
 	if(!m_Compressor) {
-		std::cerr << "[Fatal Error] No compression algorithm registered."
-			<< std::endl;
+		Log(this, "[Fatal Error] No compression algorithm registered.");
 		return; // FIXME... Throw an exception from here
 	}
 
-	std::clog << "Input File: " << ifilename << std::endl;
+	std::cout << "Input File: " << ifilename << std::endl;
 
 	// Output filename
-	// (XXX) For now this is the auto output file name
+	// (XXX) For now this is the auto generated output file name
 	std::string ofilename = ifilename + ".compressed";
 
 	// TODO ...
@@ -84,12 +83,13 @@ void CompressionDriver :: compress(std::string &ifilename) {
 	}
 
 	fsize_t file_size = getFileSize(inputf);
-
+    std::cout << "Size: " << file_size << " bytes" << std::endl;
+    
 	// Read bytes from input file
 	byte *in_data_byte_buff = new byte[file_size + 1];
 	inputf.read((char*)in_data_byte_buff, file_size);
 	in_data_byte_buff[file_size] = 0; // Append null at the end because read() doesn't
-	std::cout << "file_buff: " << in_data_byte_buff << std::endl;
+	//std::cout << "file_buff: " << in_data_byte_buff << std::endl;
 
 	// Get the compressed byte stream
 	byte* compressed_buff = m_Compressor->encoder().encode(in_data_byte_buff, &file_size);
@@ -100,7 +100,7 @@ void CompressionDriver :: compress(std::string &ifilename) {
 	    inputf.close();
 	    return;
 	}
-	std::cout << "Compressed size = " << file_size <<  std::endl;
+	std::cout << "Compressed size = " << file_size << " bytes" << std::endl;
 
 	// Open output file. The size will be obviously less than or impossibly
 	// equal to the input file size;
