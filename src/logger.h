@@ -40,6 +40,29 @@
 		logger(mesg);					\
 	} while (false);
 
+// Replace sprintf with C++ standard library APIs. (TODO)
+#define Logf(obj, ...)                  \
+    do {                                \
+        char msg[256];                  \
+        sprintf(msg, __VA_ARGS__);      \
+        logger(*obj, __func__, msg);    \
+    } while (false);
+
+#define Log_staticf(...)                \
+    do {                                \
+        char msg[256];                  \
+        sprintf(msg, __VA_ARGS__);      \
+        logger(__func__, msg);          \
+    } while (false);
+
+#define Log_plainf(...)                 \
+    do {                                \
+        char msg[256];                  \
+        sprintf(msg, __VA_ARGS__);      \
+        logger(msg);                    \
+    } while (false);
+
+
 // This is functor class used only for generating logs
 static class Logger {
 public:

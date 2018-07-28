@@ -79,8 +79,7 @@ void CompressionDriver :: compress(std::string &ifilename) {
 	std::fstream inputf;
 	inputf.open(ifilename, std::fstream::in | std::fstream::binary);
 	if(!inputf.is_open()) {
-		std::cerr << "[Error] The file \"" << ifilename
-			<< "\" does not exist." << std::endl;
+		Logf(this, "[Error] The file \"%s\" does not exist.", ifilename.c_str());
 		throw "fstream::open() failed.";
 	}
 
@@ -94,6 +93,13 @@ void CompressionDriver :: compress(std::string &ifilename) {
 
 	// Get the compressed byte stream
 	byte* compressed_buff = m_Compressor->encoder().encode(in_data_byte_buff, &file_size);
+	if(!compressed_buff) {
+	    // TODO... Cleanup code like should be placed somewhere else systematically.
+	    Logf(this, "Error: File too small to be compressed.");
+	    delete[] in_data_byte_buff;
+	    inputf.close();
+	    return;
+	}
 	std::cout << "Compressed size = " << file_size <<  std::endl;
 
 	// Open output file. The size will be obviously less than or impossibly

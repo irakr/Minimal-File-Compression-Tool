@@ -33,17 +33,25 @@ byte* HuffmanEncoder :: encode(byte *in_buff, fsize_t *buff_len) {
 	// Build the file header.
 	HeaderStruct header;
 	build_header(&header, *m_codewordTable);
+	header.header_size = get_header_size(&header);
+	header.original_size = m_inBuffSize;
+	header.compressed_size = get_compressed_size(&header, *m_frequencyTable);
 	
 	// Build the compressed data(payload)
-	size_t out_size = get_compressed_size(&header) + get_header_size(&header);
-	out_buff = new byte[out_size];
+	size_t out_size = header.header_size + header.compressed_size;
+	
+	// If compression not useful.
+	if(out_size >= m_inBuffSize)
+	    return NULL;
+	// Else continue encoding...
+	out_buff = new byte[header.header_size + header.compressed_size];
 	
 	dump_header(&header, out_buff);
     //dump_content(&header, in_buff, *buff_len, out_buff + get_compressed_size(&header));
-    dump_content(&header, in_buff, *buff_len, out_buff + get_compressed_size(&header));
+    dump_content(&header, in_buff, *buff_len, out_buff + header.header_size);
 	
-	// TODO...
-	
+	// Return compressed file buffer and its size.
+	*buff_len = out_size;
 	return out_buff;
 }
 
