@@ -11,6 +11,6 @@ UTILS_DIR = $(CUR_DIR)utils/
 ## Source file names
 SOURCES = 	$(CUR_DIR)huffman-encoder.cpp $(CUR_DIR)huffman-decoder.cpp		        \
 			$(CUR_DIR)huffman-compressor.cpp $(CUR_DIR)compression-driver.cpp       \
-			$(CUR_DIR)header.cpp $(CUR_DIR)bit-manip.cpp $(CUR_DIR)main.cpp         \
+			$(CUR_DIR)header.cpp $(CUR_DIR)main.cpp         \
 			$(UTILS_DIR)BitVector.cpp
             

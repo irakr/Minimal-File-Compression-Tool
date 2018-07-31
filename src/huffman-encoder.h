@@ -28,6 +28,11 @@
 
 #define HUFFMAN_BLOCK_SIZE      8
 
+// This prefix string resides at the beginning of the compressed file.
+// This is used to identify the file format for this program.
+#define PREFIX_LEN  4
+const byte PREFIX_STR[PREFIX_LEN] = {'Z', 'Z', 0xff, 0xff};
+
 /// Typedef for a simple min-heap based huffman tree type
 typedef
 	MinHeap<byte, double>
@@ -92,7 +97,7 @@ private:
 
 	// Generates the compressed content portion only from the
 	// input buffer and returns it.
-	byte* getCompressedContent(byte *in_buff);
+	//byte* getCompressedContent(byte *in_buff);
 
 	// Size of the input buffer
 	fsize_t m_inBuffSize;

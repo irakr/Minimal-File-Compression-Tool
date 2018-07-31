@@ -9,7 +9,6 @@
 // Compresses the file specified by the fstream and returns
 // another fstream that is a handle to the compressed file
 byte* HuffmanEncoder :: encode(byte *in_buff, fsize_t *buff_len) {
-	//@std::cout << "In HuffmanEncoder::encode()" << std::endl;
 	Log(this, "Started...");
 
 	m_inBuffSize = *buff_len;
@@ -38,16 +37,16 @@ byte* HuffmanEncoder :: encode(byte *in_buff, fsize_t *buff_len) {
 	header.compressed_size = get_compressed_size(&header, *m_frequencyTable);
 	
 	// Build the compressed data(payload)
-	size_t out_size = header.header_size + header.compressed_size;
+	size_t out_size = header.header_size + header.compressed_size + PREFIX_LEN;
 	
 	// If compression not useful.
 	if(out_size >= m_inBuffSize)
 	    return NULL;
 	// Else continue encoding...
-	out_buff = new byte[header.header_size + header.compressed_size];
+	out_buff = new byte[out_size];
+	::memcpy((byte*)out_buff, (byte*)PREFIX_STR, PREFIX_LEN);
 	
-	dump_header(&header, out_buff);
-    //dump_content(&header, in_buff, *buff_len, out_buff + get_compressed_size(&header));
+	dump_header(&header, out_buff + PREFIX_LEN);
     dump_content(&header, in_buff, *buff_len, out_buff + header.header_size);
 	
 	// Return compressed file buffer and its size.

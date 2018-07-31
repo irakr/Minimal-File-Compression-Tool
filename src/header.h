@@ -11,7 +11,10 @@
 #include "huffman-encoder.h"
 
 /*
- * Header structure definition
+ * Header structure definition.
+ * The image of the content of this struct is written to file.
+ * (NOTE) A 3-character string is written at the beginning of the file
+ * even before this struct header.
  *
  * @header_size: Actual size of the header itself including the pointer contents.
  *

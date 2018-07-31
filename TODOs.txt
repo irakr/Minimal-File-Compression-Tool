@@ -1,11 +1,8 @@
 Overall things to be done:-
 
-1. Implement HuffmanEncoder::encode() and HuffmanDecoder::decode() methods.
+1. Implement decompression module.
 
-2. Decide the appropriate datatype for 'CodewordTable'. Whether to use std::string or std::bitset ???
+2. Correct the working of compressing multiple files from command line.
 
 3. Add error logging feature in logger.h.
 
-4. Change the HuffmanTree implementation.
-
-5. Try to implement the tree traversal algo on MinHeapNode*.

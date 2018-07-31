@@ -122,19 +122,59 @@ void CompressionDriver :: compressAll() {
 }
 
 // Decompress the compressed file 'file'
-void CompressionDriver :: decompress(std::string &file) {
+void CompressionDriver :: decompress(std::string &ifilename) {
+	Log(this, "Started...");
+	if(!m_Compressor) {
+		Log(this, "[Fatal Error] No compression algorithm registered.");
+		return; // FIXME... Throw an exception from here
+	}
+
+	std::cout << "Input File: " << ifilename << std::endl;
+
+	// Output filename
+	// (XXX) For now this is the auto generated output file name
+	std::string ofilename = ifilename + ".orig";
+
 	// TODO ...
 	// Open file named 'file'
 	// Pass the handle to specific decode() function
 	// decode() should return back the decompressed file handle
-	std::fstream inputf(file, std::fstream::in | std::fstream::binary);
+	std::fstream inputf(ifilename, std::fstream::in | std::fstream::binary);
 	if(!inputf.is_open()) {
-		std::cerr << "[Error] The file \"" << file << "\" does not exist." << std::endl;
+		std::cerr << "[Error] The file \"" << ifilename << "\" does not exist." << std::endl;
 		return;
 	}
-	//std::fstream& decompressedf = m_Compressor->decoder().decode(inputf, file);
-	//inputf.close();
-	//decompressedf.close();
+	
+	fsize_t file_size = getFileSize(inputf);
+    std::cout << "Size: " << file_size << " bytes" << std::endl;
+    
+	// Read bytes from input file
+	byte *in_data_byte_buff = new byte[file_size + 1];
+	inputf.read((char*)in_data_byte_buff, file_size);
+	in_data_byte_buff[file_size] = 0; // Append null at the end because read() doesn't
+	//std::cout << "file_buff: " << in_data_byte_buff << std::endl;
+
+	// Get the compressed byte stream
+	byte* decompressed_buff = m_Compressor->decoder().decode(in_data_byte_buff, &file_size);
+	if(!decompressed_buff) {
+	    // TODO... Cleanup code like should be placed somewhere else systematically.
+	    Logf(this, "Error: Invalid file format.");
+	    delete[] in_data_byte_buff;
+	    inputf.close();
+	    return;
+	}
+	std::cout << "Decompressed size = " << file_size << " bytes" << std::endl;
+
+	// Open output file. The size will be obviously less than or impossibly
+	// equal to the input file size;
+	// Then write the compressed byte stream to it.
+	std::fstream outputf;
+	outputf.open(ofilename, std::fstream::out | std::fstream::binary);
+	outputf.write((const char*)decompressed_buff,
+		file_size);
+
+	inputf.close();
+	outputf.close();
 }
 
 // Decompress all files in m_fileNames
