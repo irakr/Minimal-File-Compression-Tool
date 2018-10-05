@@ -1,6 +1,6 @@
 # Minimal File Compression Tool (MFCT)
 
-# (Decompression code is under development yet)
+# (Decompression code is still under development)
 
 # Features:
 - Supported file types: ASCII text files.
