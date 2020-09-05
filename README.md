@@ -1,11 +1,13 @@
 # Minimal File Compression Tool (MFCT)
 
+This project is just for my own experimentation purpose. Not really a tool.
+
 # (Decompression code is still under development)
 
 # Features:
 - Supported file types: ASCII text files.
 - Algorithms used: Huffman Coding algorithm.
-- Written in C++14 with OOP design.
+- Written in C++11.
 
 # Build instructions:
 - There are two types of builds that can be generated, release and debug builds:
